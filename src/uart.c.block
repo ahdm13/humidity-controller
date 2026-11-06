@@ -1,0 +1,50 @@
+#include "uart.h"
+#include <periph/uart.h>
+#include <rtos/mutex.h>
+#include <stddef.h>
+
+static bool mut_send = false;
+static bool mut_recv = false;
+
+void m_uart_init(void)
+{
+	rtos_mutex_init(&mut_send);
+	rtos_mutex_init(&mut_recv);
+	uart_init();
+}
+
+void m_uart_putchar(char c)
+{
+	while(rtos_mutex_get(&mut_send) != 0)
+		uart_write("WAIT SEND\r\n");
+	uart_putchar(c);
+	rtos_mutex_rel(&mut_send);
+}
+
+void m_uart_write(const char *c)
+{
+	while(rtos_mutex_get(&mut_send) != 0)
+		uart_write("WAIT SEND\r\n");
+	uart_write(c);
+	rtos_mutex_rel(&mut_send);
+}
+
+int m_uart_getchar(void)
+{
+	int ret;
+
+	while(rtos_mutex_get(&mut_recv) != 0)
+		uart_write("WAIT RECV\r\n");
+	ret = uart_getchar();
+	rtos_mutex_rel(&mut_recv);
+
+	return ret;
+}
+
+void m_uart_read(char *dst, size_t dstsz)
+{
+	while(rtos_mutex_get(&mut_recv) != 0)
+		uart_write("WAIT RECV\r\n");
+	uart_read(dst, dstsz);
+	rtos_mutex_rel(&mut_recv);
+}
