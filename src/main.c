@@ -15,7 +15,7 @@ static struct rtos_tcb tcb[NTHREADS];
 static uint32_t stack[NTHREADS][STACKSIZE];
 
 uint32_t dht22_data;
-bool dht22_enabled;
+bool dht22_enabled, dht22_errors;
 
 void task_shell(void)
 {
@@ -41,7 +41,7 @@ void task_dht22(void)
 		dwt_delay_ms(2000);
 
 		status = dht22_get_data(&dht22_data);
-		if (status != 0) {
+		if (status != 0 && dht22_errors) {
 			uart_write("ERROR: DHT22: ");
 			if (status != -5) {
 				uart_write("sensor timed out (-");
@@ -64,6 +64,7 @@ int main(void)
 
 	dht22_data = 0;
 	dht22_enabled = true;
+	dht22_errors = true;
 
 	rtos_thread_add(task_shell, &tcb[0], &stack[0][STACKSIZE - 1]);
 	rtos_thread_add(task_dht22, &tcb[1], &stack[1][STACKSIZE - 1]);

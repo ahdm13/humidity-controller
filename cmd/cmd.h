@@ -6,12 +6,14 @@
 int cmd_dht22_data(int argc, char **argv);
 int cmd_dht22(int argc, char **argv);
 int cmd_dht22_humidity(int argc, char **argv);
+int cmd_dht22_errors(int argc, char **argv);
 int cmd_mistmaker_set(int argc, char **argv);
 
 static struct embsh_cmd cmd[] = {
 	{ "dht22-data", "", cmd_dht22_data },
 	{ "dht22", "[enable|disable]", cmd_dht22 },
 	{ "dht22-humidity", "", cmd_dht22_humidity },
+	{ "dht22-errors", "[enable|disable]", cmd_dht22_errors },
 	{ "mistmaker-set", "<percent>", cmd_mistmaker_set }
 };
 static const size_t ncmd = sizeof(cmd)/sizeof(*cmd);
